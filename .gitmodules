@@ -1,0 +1,9 @@
+[submodule "workbench/controller/lib/MODBUS-Slave-Cpp"]
+	path = workbench/controller/lib/MODBUS-Slave-Cpp
+	url = https://github.com/Tai-Min/MODBUS-Slave-Cpp.git
+[submodule "workbench/controller/lib/Signal-Utilities-for-Arduino"]
+	path = workbench/controller/lib/Signal-Utilities-for-Arduino
+	url = https://github.com/Tai-Min/Signal-Utilities-for-Arduino.git
+[submodule "workbench/controller/MODBUS-Slave-Cpp"]
+	path = workbench/controller/MODBUS-Slave-Cpp
+	url = https://github.com/Tai-Min/MODBUS-Slave-Cpp.git

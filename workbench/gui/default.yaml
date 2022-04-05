@@ -1,0 +1,24 @@
+motor_control:
+  motor_pwm: 0
+  load_pwm: 0
+
+impact_control:
+  motor_enable_fixed: False
+  motor_enable_random: False
+  motor_shock_period: 100
+  motor_shock_filling: 50
+  load_enable_fixed: False
+  load_enable_random: False
+  load_shock_period: 100
+  load_shock_filling: 50
+
+bearing_control:
+  enabled: False
+  min_angle: 0
+  max_angle: 180
+  pulse_duration: 20
+  pulse_threshold: 300
+  pulses_per_revolution: 1
+
+heater_control:
+  enabled: False
