@@ -24,7 +24,7 @@ void alerts_transmitting(bool t);
 
 static const struct device *pwm = DEVICE_DT_GET(PWM_CTRL);
 static struct k_mutex mtx;
-static enum Alert currAlert = OKAY;
+static enum Alert currAlert = WARNING;
 static bool transmitting = false;
 
 bool alerts_init()
