@@ -1,31 +1,45 @@
 #include <zephyr.h>
 #include <stdio.h>
-#include "../include/led_alerts.h"
+#include "../include/leds.h"
 #include "../include/accels.h"
 #include "../include/pca.h"
 
-// Select only one!
-#define PCA_DATASET_COLLECTOR // Collect magnitude data to create dataset for PCA model.
-//#define NEURAL_DATASET_COLLECTOR // Collect PCA processed data to create dataset for neural network.
-//#define NORMAL_OP // Perform condition check.
+#define PRINT_MAGNITUDES
+//#define PRINT_PCA
 
-#ifdef PCA_DATASET_COLLECTOR
+#ifdef PRINT_MAGNITUDES
 void printMag(const float *buf)
 {
-	for (uint8_t k = 0; k < ACCEL_NUM_MAGNITUDES; k++)
+	leds_setTransmitting(true);
+	for (uint16_t k = 0; k < ACCEL_NUM_MAGNITUDES; k++)
 	{
 		if (k < ACCEL_NUM_MAGNITUDES - 1)
 			printf("%.3f, ", buf[k]);
 		else
 			printf("%.3f", buf[k]);
+		k_sleep(K_USEC(10));
 	}
 	printf("\n");
+	leds_setTransmitting(false);
 }
 #endif
 
-void mainHandler()
+#ifdef PRINT_PCA
+void printPCA(const float *buf)
 {
+	leds_setTransmitting(true);
+	for (uint16_t k = 0; k < PCA_RESULT_SIZE; k++)
+	{
+		if (k < PCA_RESULT_SIZE - 1)
+			printf("%.3f, ", buf[k]);
+		else
+			printf("%.3f", buf[k]);
+		k_sleep(K_USEC(10));
+	}
+	printf("\n");
+	leds_setTransmitting(false);
 }
+#endif
 
 void main(void)
 {
@@ -34,8 +48,10 @@ void main(void)
 
 	k_sleep(K_MSEC(2000));
 
-	if (!alerts_init())
+	if (!leds_init())
 		return;
+
+	leds_setState(OKAY);
 
 	if (!accels_init())
 		return;
@@ -43,28 +59,24 @@ void main(void)
 	while (true)
 	{
 
-#ifdef PCA_DATASET_COLLECTOR
 		if (!accels_sample())
 			return;
 
+#ifdef PRINT_MAGNITUDES
 		printf("---\n");
+		for (uint8_t i = 0; i < ACCEL_NUM_AXES; i++)
+			printMag(accels_getVelocityMagnitudes(ACCEL_HIGH_G, i));
+#endif
 
-		printMag(accels_getMagnitudes(ACCEL_LOW_POWER, ACCEL_X_IDX));
-		printMag(accels_getMagnitudes(ACCEL_LOW_POWER, ACCEL_Y_IDX));
-		printMag(accels_getMagnitudes(ACCEL_LOW_POWER, ACCEL_Z_IDX));
+		/*float *mags[PCA_NUM_INPUT_BUFS] = {accels_getVelocityMagnitudes(ACCEL_HIGH_G, ACCEL_X_IDX),
+										   accels_getVelocityMagnitudes(ACCEL_HIGH_G, ACCEL_Y_IDX),
+										   accels_getVelocityMagnitudes(ACCEL_HIGH_G, ACCEL_Z_IDX)};*/
 
-		printMag(accels_getMagnitudes(ACCEL_HIGH_G, ACCEL_X_IDX));
-		printMag(accels_getMagnitudes(ACCEL_HIGH_G, ACCEL_Y_IDX));
-		printMag(accels_getMagnitudes(ACCEL_HIGH_G, ACCEL_Z_IDX));
+		//pca(mags);
 
-		float *mags[PCA_NUM_INPUT_BUFS] = {accels_getMagnitudes(ACCEL_LOW_POWER, ACCEL_X_IDX), accels_getMagnitudes(ACCEL_LOW_POWER, ACCEL_Y_IDX),
-										   accels_getMagnitudes(ACCEL_LOW_POWER, ACCEL_Z_IDX), accels_getMagnitudes(ACCEL_HIGH_G, ACCEL_X_IDX),
-										   accels_getMagnitudes(ACCEL_HIGH_G, ACCEL_Y_IDX), accels_getMagnitudes(ACCEL_HIGH_G, ACCEL_Z_IDX)};
-		pca_doTransform(mags);
-		float *pca = pca_getResultBuf();
-
-		for (int i = 0; i < PCA_RESULT_SIZE; i++)
-			printf("%f, ", pca[i]);
+#ifdef PRINT_PCA
+		//printf("---\n");
+		//printPCA(pca_getResultBuf());
 #endif
 	}
 }

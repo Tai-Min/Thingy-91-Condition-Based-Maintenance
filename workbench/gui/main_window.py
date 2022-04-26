@@ -9,7 +9,7 @@ import yaml
 from connection_widget import ConnectionWidget
 from motor_control_widget import MotorControlWidget
 from bearing_control_widget import BearingControlWidget
-from heater_control_widget import HeaterControlWidget
+from noise_control_widget import NoiseControlWidget
 from impact_control_widget import ImpactControlWidget
 
 # Coil addresses.
@@ -18,7 +18,7 @@ IMPACT_MOTOR_ENABLE_RANDOM_ADDR = 1
 IMPACT_LOAD_ENABLE_FIXED_ADDR = 2
 IMPACT_LOAD_ENABLE_RANDOM_ADDR = 3
 BEARING_ENABLE_ADDR = 4
-HEATER_ENABLE_ADDR = 5
+NOISE_ENABLE_ADDR = 5
 
 # Holding register addresses.
 MOTOR_SPEED_ADDR = 0
@@ -29,11 +29,9 @@ MOTOR_SHOCK_FILLING_ADDR = 3
 LOAD_SHOCK_PERIOD_ADDR = 4
 LOAD_SHOCK_FILLING_ADDR = 5
 
-BEARING_MIN_ANGLE_ADDR = 6
-BEARING_MAX_ANGLE_ADDR = 7
-BEARING_PULSE_DURATION_ADDR = 8
-BEARING_PULSE_THRESHOLD_ADDR = 9
-BEARING_PULSES_PER_REV_ADDR = 10
+BEARING_PULSE_DURATION_ADDR = 6
+BEARING_PULSE_THRESHOLD_ADDR = 7
+BEARING_PULSES_PER_REV_ADDR = 8
 
 
 class MainWindow(QMainWindow):
@@ -67,7 +65,7 @@ class MainWindow(QMainWindow):
         self.motor_widget = MotorControlWidget(config["motor_control"])
         self.impact_widget = ImpactControlWidget(config["impact_control"])
         self.bearing_widget = BearingControlWidget(config["bearing_control"])
-        self.heater_widget = HeaterControlWidget(config["heater_control"])
+        self.noise_widget = NoiseControlWidget(config["noise_control"])
 
         self.write_button = QPushButton("WRITE")
         self.write_button.setEnabled(False)
@@ -84,7 +82,7 @@ class MainWindow(QMainWindow):
 
         self.right_layout = QVBoxLayout()
         self.right_layout.addWidget(self.bearing_widget)
-        self.right_layout.addWidget(self.heater_widget)
+        self.right_layout.addWidget(self.noise_widget)
 
         self.controls_layout = QHBoxLayout()
         self.controls_layout.addLayout(self.left_layout)
@@ -128,7 +126,7 @@ class MainWindow(QMainWindow):
             self.motor_widget.set_config(config["motor_control"])
             self.impact_widget.set_config(config["impact_control"])
             self.bearing_widget.set_config(config["bearing_control"])
-            self.heater_widget.set_config(config["heater_control"])
+            self.noise_widget.set_config(config["noise_control"])
 
             self.set_current_scenario(file)
 
@@ -172,7 +170,7 @@ class MainWindow(QMainWindow):
         config["motor_control"] = self.motor_widget.get_config()
         config["impact_control"] = self.impact_widget.get_config()
         config["bearing_control"] = self.bearing_widget.get_config()
-        config["heater_control"] = self.heater_widget.get_config()
+        config["noise_control"] = self.noise_widget.get_config()
 
         with open(file, "w") as stream:
             yaml.dump(config, stream)
@@ -224,10 +222,6 @@ class MainWindow(QMainWindow):
         # Bearing control
         self.modbus_client.write_coil(
             unit=self.unit_addr, address=BEARING_ENABLE_ADDR, value=self.bearing_widget.bearing_enable_button.isChecked())
-        self.modbus_client.write_register(unit=self.unit_addr, address=BEARING_MIN_ANGLE_ADDR, value=c_uint16(
-            self.bearing_widget.servo_min_angle_slider.value()).value)
-        self.modbus_client.write_register(unit=self.unit_addr, address=BEARING_MAX_ANGLE_ADDR, value=c_uint16(
-            self.bearing_widget.servo_max_angle_slider.value()).value)
         self.modbus_client.write_register(unit=self.unit_addr, address=BEARING_PULSE_DURATION_ADDR, value=c_uint16(
             self.bearing_widget.servo_pulse_duration_slider.value()).value)
         self.modbus_client.write_register(unit=self.unit_addr, address=BEARING_PULSE_THRESHOLD_ADDR, value=c_uint16(
@@ -235,12 +229,11 @@ class MainWindow(QMainWindow):
         self.modbus_client.write_register(unit=self.unit_addr, address=BEARING_PULSES_PER_REV_ADDR, value=c_uint16(
             self.bearing_widget.servo_pulse_count_slider.value()).value)
 
-        # Heater control.
-        #self.modbus_client.write_coil(
-        #    unit=self.unit_addr, address=HEATER_ENABLE_ADDR, value=self.heater_widget.heater_enable_button.isChecked())
+        # Noise control.
+        self.modbus_client.write_coil(unit=self.unit_addr, address=NOISE_ENABLE_ADDR, value=self.noise_widget.noise_enable_button.isChecked())
 
     def stop_actuators(self):
         self.motor_widget.motor_speed_slider.setValue(0)
         self.motor_widget.load_speed_slider.setValue(0)
-        self.heater_widget.heater_enable_button.setChecked(False)
+        self.noise_widget.noise_enable_button.setChecked(False)
         self.write_server()

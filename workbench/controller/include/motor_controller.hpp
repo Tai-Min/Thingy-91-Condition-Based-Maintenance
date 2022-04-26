@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "bearing_fail_sim.hpp"
 
 class MotorController
 {
@@ -12,7 +13,7 @@ private:
 
     int motorPWM = 0; //!< User desired motor's PWM (signed to specify direction).
 
-    bool fixedShockEnabled = false; //!< Whether shocking with specified parameters is enabled.
+    bool fixedShockEnabled = false;  //!< Whether shocking with specified parameters is enabled.
     bool randomShockEnabled = false; //!< Whether shocking with randomized parameters is enabled.
 
     int randomShockPeriod = 500; //!< Period of randomized shock in ms, randomized after each shock.
@@ -22,22 +23,6 @@ private:
     int fixedShockFilling = 50; //!< Filling of fixed shock in %, specified by user.
 
     unsigned long startShockTime = 0; //!< Used to track shock time.
-
-    void writePWM();
-
-public:
-    MotorController(int _in1Pin, int _in2Pin, int _pwmPin, int _enaPin)
-        : in1Pin(_in1Pin), in2Pin(_in2Pin), pwmPin(_pwmPin), enaPin(_enaPin) {}
-
-    void begin()
-    {
-        pinMode(in1Pin, OUTPUT);
-        pinMode(in2Pin, OUTPUT);
-        pinMode(pwmPin, OUTPUT);
-        pinMode(enaPin, OUTPUT);
-
-        digitalWrite(enaPin, 1);
-    }
 
     void writePWM(int val)
     {
@@ -53,6 +38,20 @@ public:
         }
 
         analogWrite(pwmPin, abs(val));
+    }
+
+public:
+    MotorController(int _in1Pin, int _in2Pin, int _pwmPin, int _enaPin)
+        : in1Pin(_in1Pin), in2Pin(_in2Pin), pwmPin(_pwmPin), enaPin(_enaPin) {}
+
+    void begin()
+    {
+        pinMode(in1Pin, OUTPUT);
+        pinMode(in2Pin, OUTPUT);
+        pinMode(pwmPin, OUTPUT);
+        pinMode(enaPin, OUTPUT);
+
+        digitalWrite(enaPin, 1);
     }
 
     void setPWM(int val)

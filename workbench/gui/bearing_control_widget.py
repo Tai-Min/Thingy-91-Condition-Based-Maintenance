@@ -12,24 +12,10 @@ class BearingControlWidget(QGroupBox):
         self.bearing_enable_button.setCheckable(True)
         self.bearing_enable_button.setFixedWidth(70)
 
-        self.servo_min_angle_label = QLabel("Min angle:")
-        self.servo_min_angle_slider = QSlider(Qt.Horizontal)
-        self.servo_min_angle_slider.setMinimum(0)
-        self.servo_min_angle_slider.setMaximum(90)
-        self.servo_min_angle_value = QLabel(str(config["min_angle"]) + " [°]")
-        self.servo_min_angle_value.setFixedWidth(40)
-
-        self.servo_max_angle_label = QLabel("Max angle:")
-        self.servo_max_angle_slider = QSlider(Qt.Horizontal)
-        self.servo_max_angle_slider.setMinimum(91)
-        self.servo_max_angle_slider.setMaximum(180)
-        self.servo_max_angle_value = QLabel(str(config["max_angle"]) + " [°]")
-        self.servo_max_angle_value.setFixedWidth(40)
-
         self.servo_pulse_duration_label = QLabel("Pulse duration:")
         self.servo_pulse_duration_slider = QSlider(Qt.Horizontal)
         self.servo_pulse_duration_slider.setMinimum(0)
-        self.servo_pulse_duration_slider.setMaximum(200)
+        self.servo_pulse_duration_slider.setMaximum(500)
         self.servo_pulse_duration_value = QLabel(
             str(config["pulse_duration"]) + " [ms]")
         self.servo_pulse_duration_value.setFixedWidth(40)
@@ -52,14 +38,6 @@ class BearingControlWidget(QGroupBox):
 
         # Layouts.
         self.slider_layout = QGridLayout()
-
-        self.slider_layout.addWidget(self.servo_min_angle_label, 0, 0)
-        self.slider_layout.addWidget(self.servo_min_angle_slider, 0, 1)
-        self.slider_layout.addWidget(self.servo_min_angle_value, 0, 2)
-
-        self.slider_layout.addWidget(self.servo_max_angle_label, 1, 0)
-        self.slider_layout.addWidget(self.servo_max_angle_slider, 1, 1)
-        self.slider_layout.addWidget(self.servo_max_angle_value, 1, 2)
 
         self.slider_layout.addWidget(self.servo_pulse_duration_label, 2, 0)
         self.slider_layout.addWidget(self.servo_pulse_duration_slider, 2, 1)
@@ -84,10 +62,6 @@ class BearingControlWidget(QGroupBox):
         # Connections.
         self.bearing_enable_button.toggled.connect(self.toggle_controls)
 
-        self.servo_min_angle_slider.valueChanged.connect(
-            lambda val: self.servo_min_angle_value.setText(str(val) + " [°]"))
-        self.servo_max_angle_slider.valueChanged.connect(
-            lambda val: self.servo_max_angle_value.setText(str(val) + " [°]"))
         self.servo_pulse_duration_slider.valueChanged.connect(
             lambda val: self.servo_pulse_duration_value.setText(str(val) + " [ms]"))
         self.servo_pulse_threshold_slider.valueChanged.connect(
@@ -99,8 +73,6 @@ class BearingControlWidget(QGroupBox):
         self.set_config(config)
 
     def toggle_controls(self, enabled):
-        self.servo_min_angle_slider.setEnabled(enabled)
-        self.servo_max_angle_slider.setEnabled(enabled)
         self.servo_pulse_duration_slider.setEnabled(enabled)
         self.servo_pulse_threshold_slider.setEnabled(enabled)
         self.servo_pulse_count_slider.setEnabled(enabled)
@@ -108,8 +80,6 @@ class BearingControlWidget(QGroupBox):
     def get_config(self):
         config = {}
         config["enabled"] = self.bearing_enable_button.isChecked()
-        config["min_angle"] = self.servo_min_angle_slider.value()
-        config["max_angle"] = self.servo_max_angle_slider.value()
         config["pulse_duration"] = self.servo_pulse_duration_slider.value()
         config["pulse_threshold"] = self.servo_pulse_threshold_slider.value()
         config["pulses_per_revolution"] = self.servo_pulse_count_slider.value()
@@ -118,15 +88,7 @@ class BearingControlWidget(QGroupBox):
     def set_config(self, config):
         self.bearing_enable_button.setChecked(config["enabled"])
 
-        if config["min_angle"] > 90 or config["min_angle"] < 0:
-            raise ValueError("Min angle must be between 0 and 90 [°]")
-        self.servo_min_angle_slider.setValue(config["min_angle"])
-
-        if config["max_angle"] > 180 or config["max_angle"] < 91:
-            raise ValueError("Min angle must be between 91 and 180 [°]")
-        self.servo_max_angle_slider.setValue(config["max_angle"])
-
-        if config["pulse_duration"] > 200 or config["pulse_duration"] < 0:
+        if config["pulse_duration"] > 500 or config["pulse_duration"] < 0:
             raise ValueError("Pulse duration must be between 0 and 200 [ms]")
         self.servo_pulse_duration_slider.setValue(config["pulse_duration"])
 

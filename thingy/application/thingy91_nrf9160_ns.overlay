@@ -1,3 +1,7 @@
 #include <dt-bindings/pwm/pwm.h>
 
 / {};
+
+&uart0 {
+    current-speed = <921600>;
+};
