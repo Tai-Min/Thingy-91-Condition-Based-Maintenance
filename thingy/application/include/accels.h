@@ -1,11 +1,15 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 
 #define ACCEL_TOTAL_SAMPLES_PER_ACCEL_CHANNEL 256                           // MUST BE POWER OF 2!
 #define ACCEL_WINDOW_SHIFT_IN_SAMPLES ACCEL_TOTAL_SAMPLES_PER_ACCEL_CHANNEL // Must be less or equal to ACCEL_TOTAL_SAMPLES_PER_ACCEL_CHANNEL.
-#define ACCEL_DELAY_BETWEEN_SAMPLES_US 500
+#define ACCEL_DELAY_BETWEEN_SAMPLES_US 400
 
 #define ACCEL_DELTA_T (ACCEL_DELAY_BETWEEN_SAMPLES_US / (float)1000000)
 #define ACCEL_NUM_MAGNITUDES (ACCEL_TOTAL_SAMPLES_PER_ACCEL_CHANNEL / 2 + 1)
@@ -28,4 +32,8 @@ enum AccelType
 
 bool accels_init();
 bool accels_sample();
-const float *accels_getVelocityMagnitudes(enum AccelType accel, uint8_t idx);
+float *accels_getVelocityMagnitudes(enum AccelType accel, uint8_t idx);
+
+#ifdef __cplusplus
+}
+#endif

@@ -70,6 +70,10 @@ def to_c_like_matrix(arr):
 header = """
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PCA_RESULT_SIZE {0}
 
 #define PCA_ROWS {1}
@@ -80,6 +84,10 @@ header = """
 
 void pca(float *bufs[PCA_NUM_INPUT_BUFS]);
 float *pca_getResultBuf();
+
+#ifdef __cplusplus
+}
+#endif
 """ .format(eigen_vecs_reduced_scaled.shape[1],
             eigen_vecs_reduced_scaled.shape[0])
 
@@ -87,7 +95,7 @@ with open("pca.h", "w") as h:
     h.write(header)
 
 source = """
-#include "../include/pca.h"
+#include "pca.h"
 #include <stdint.h>
 
 void pca(float *bufs[PCA_NUM_INPUT_BUFS]);

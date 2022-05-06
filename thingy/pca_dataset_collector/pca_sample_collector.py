@@ -9,10 +9,9 @@ import numpy as np
 num_sensors = 1
 num_axis_per_sensor = 3
 total_samples_per_accel_channel = 256
-delay_between_samples_us = 500
+delay_between_samples_us = 400
 
 # Script start.
-
 num_readings = num_sensors * num_axis_per_sensor
 sampling_freq = 1 / (delay_between_samples_us / 1000000)
 num_magnitudes = total_samples_per_accel_channel / 2 + 1
@@ -43,9 +42,14 @@ def readings_to_lists(readings):
 
 
 def plot_single(ax, bar, reading, max_val):
+    #bar.set_ydata(reading)
     for b, val in zip(bar, reading):
         b.set_height(val)
+    #ax.set_ylim([min(reading), max(reading)])
     ax.set_ylim([0, max_val])
+
+    ax.set_xlabel("Frequency [Hz]")
+    ax.set_ylabel("Magnitude [m/s]")
 
 ser = serial.Serial()
 ser.baudrate = 921600
@@ -58,6 +62,7 @@ i = 0
 
 for col in range(num_axis_per_sensor):
     for row in range(num_sensors):
+        #bars[i], = axs[row, col].plot(freqs, [0] * len(freqs))
         bars[i] = axs[row, col].bar(freqs, [0] * len(freqs))
         i += 1
 
@@ -71,6 +76,7 @@ while True:
     start_line = ""
     while start_line != "---":
         start_line = ser.readline()
+        print(start_line)
         try:
             start_line = start_line.decode("utf-8").strip()
         except UnicodeDecodeError:

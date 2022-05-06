@@ -1,5 +1,4 @@
-#include "../include/sig.h"
-
+#include "sig.h"
 #include <math.h>
 
 void sig_init();

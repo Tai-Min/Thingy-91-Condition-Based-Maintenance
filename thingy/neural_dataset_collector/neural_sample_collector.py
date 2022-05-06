@@ -5,9 +5,15 @@ from os.path import exists
 
 # Make sure these params have the same values in pca.h.
 
-label = "struggle"
-pca_result_size = 65
-
+label = "bearing"
+readings_per_sample = 10
+pca_result_size = 70
+sample_window_size = 256
+sample_window_shift = 128
+num_new_samples = sample_window_size - sample_window_shift
+single_reading_time = 0.0004
+window_sample_time = single_reading_time * num_new_samples
+window_sample_time = 50 # Just use 50ms and don't bother.
 
 def reading_to_lists(reading):
     try:
@@ -33,6 +39,7 @@ def find_available_filename():
 
 
 csv_header = ["pca" + str(s) for s in range(pca_result_size)]
+csv_header.insert(0, "timestamp")
 
 find_available_filename.cntr = 1
 
@@ -41,29 +48,45 @@ ser.baudrate = 921600
 ser.port = "COM13"
 ser.open()
 
+readings = [[0] * (1 + pca_result_size)] * readings_per_sample
+
 while True:
-    ser.flush()
+    sampling_success = True
+    tstamp = 0
 
-    # Wait for start of measurement.
-    start_line = ""
-    while start_line != "---":
+    for sample in range(readings_per_sample):
+        ser.flush()
 
-        start_line = ser.readline()
+        # Wait for start of measurement.
+        start_line = ""
+        while start_line != "---":
 
-        try:
-            start_line = start_line.decode("utf-8").strip()
-        except UnicodeDecodeError:
-            continue
+            start_line = ser.readline()
+            try:
+                start_line = start_line.decode("utf-8").strip()
+            except UnicodeDecodeError:
+                sampling_success = False
+                break
 
-    # Read measurement.
-    reading = ser.readline()
+        if not sampling_success:
+            break
 
-    # Parse bytecode into lists.
-    reading_parsed = reading_to_lists(reading)
-    if not reading_parsed:
-        continue
+        # Read measurement.
+        reading = ser.readline()
+        # Parse bytecode into lists.
+        reading_parsed = reading_to_lists(reading)
+        if not reading_parsed:
+            sampling_success = False
+            break
 
-    with open(find_available_filename(), "a", newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(csv_header)
-        writer.writerow(reading_parsed)
+        reading_parsed.insert(0, tstamp)
+        readings[sample] = reading_parsed
+        
+        tstamp += window_sample_time
+
+    if sampling_success:
+        with open(find_available_filename(), "a", newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(csv_header)
+            for reading in readings:
+                writer.writerow(reading)

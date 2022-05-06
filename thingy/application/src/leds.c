@@ -1,4 +1,4 @@
-#include "../include/leds.h"
+#include "leds.h"
 #include <device.h>
 #include <zephyr.h>
 #include <drivers/pwm.h>
@@ -27,6 +27,8 @@ static struct k_mutex mtx;
 static enum VisualAlert currAlert = WARNING;
 static bool transmitting = false;
 
+static void updateLeds();
+
 bool leds_init()
 {
     if (!device_is_ready(pwm))
@@ -52,7 +54,7 @@ void leds_setTransmitting(bool t)
     k_mutex_unlock(&mtx);
 }
 
-void alerts_update()
+void updateLeds()
 {
     static uint8_t yellow_toggler = 0;
     static uint8_t red_toggler = 0;
@@ -107,4 +109,4 @@ void alerts_update()
     }
 }
 
-K_THREAD_DEFINE(alerts_thread, 256, alerts_update, NULL, NULL, NULL, 0, 0, 0);
+K_THREAD_DEFINE(leds_thread, 256, updateLeds, NULL, NULL, NULL, 0, 0, 0);

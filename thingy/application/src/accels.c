@@ -1,5 +1,5 @@
-#include "../include/accels.h"
-#include "../include/sig.h"
+#include "accels.h"
+#include "sig.h"
 
 #include <stdio.h>
 #include <device.h>
@@ -9,7 +9,7 @@
 
 bool accles_init();
 bool accles_sample();
-const float *accels_getVelocityMagnitudes(enum AccelType accel, uint8_t idx);
+float *accels_getVelocityMagnitudes(enum AccelType accel, uint8_t idx);
 
 // static float accels_lowPowerAccelSamples[ACCEL_NUM_AXES][ACCEL_TOTAL_SAMPLES_PER_ACCEL_CHANNEL];
 static float accels_highGAccelSamples[ACCEL_NUM_AXES][ACCEL_TOTAL_SAMPLES_PER_ACCEL_CHANNEL];
@@ -96,7 +96,7 @@ bool accels_sample()
     return true;
 }
 
-const float *accels_getVelocityMagnitudes(enum AccelType accel, uint8_t idx)
+float *accels_getVelocityMagnitudes(enum AccelType accel, uint8_t idx)
 {
     /*if (accel == ACCEL_LOW_POWER)
         return accels_lowPowerAccelSamples[idx];*/
@@ -147,13 +147,9 @@ static bool fetchSingleAccel(const struct device *accel, float buf[ACCEL_NUM_AXE
         return false;
     }
 
-    buf[ACCEL_X_IDX][sample_idx] = fabs(sensor_value_to_double(&vals[ACCEL_X_IDX])) * 1000;
-    buf[ACCEL_Y_IDX][sample_idx] = fabs(sensor_value_to_double(&vals[ACCEL_Y_IDX])) * 1000;
-    buf[ACCEL_Z_IDX][sample_idx] = fabs(sensor_value_to_double(&vals[ACCEL_Z_IDX])) * 1000;
-
-    /*buf[ACCEL_X_IDX][sample_idx] = sqrt(buf[ACCEL_X_IDX][sample_idx] * buf[ACCEL_X_IDX][sample_idx] +
-                                        buf[ACCEL_Y_IDX][sample_idx] * buf[ACCEL_Y_IDX][sample_idx] +
-                                        buf[ACCEL_Z_IDX][sample_idx] * buf[ACCEL_Z_IDX][sample_idx]);*/
+    buf[ACCEL_X_IDX][sample_idx] = fabs(sensor_value_to_double(&vals[ACCEL_X_IDX]));
+    buf[ACCEL_Y_IDX][sample_idx] = fabs(sensor_value_to_double(&vals[ACCEL_Y_IDX]));
+    buf[ACCEL_Z_IDX][sample_idx] = fabs(sensor_value_to_double(&vals[ACCEL_Z_IDX]));
 
     return true;
 }
