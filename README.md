@@ -1,6 +1,6 @@
 # Thingy-91-Condition-Based-Maintenance
 
-Repository for [Condition based maincenance](https://www.electromaker.io/project/view/contactless-condition-based-maintenance-of-dc-motor), which was submitted for [Make it smart with Nordic Thingy:91](https://www.electromaker.io/contest/make-it-smart-with-nordic-thingy-91) and has won "Edge Impulse Machine Learning Prize".
+Repository for [Condition Based Maincenance](https://www.electromaker.io/project/view/contactless-condition-based-maintenance-of-dc-motor), which was submitted for [Make it smart with Nordic Thingy:91](https://www.electromaker.io/contest/make-it-smart-with-nordic-thingy-91) and has won "Edge Impulse Machine Learning Prize".
 
 The main part of this project is a simple Thingy:91 based IoT sensor for condition based maintenance of power generators. The sensor uses built in high G accelerometer to perform vibration classification using FFT, PCA and simple feedforward neural network on the edge. Sensor's outputs are RGB LED visuals (alerts, warnings, info) along with MQTT messages sent over LTE.
 
